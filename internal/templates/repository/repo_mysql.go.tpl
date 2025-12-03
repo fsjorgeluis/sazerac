@@ -1,16 +1,16 @@
-package repositories
+package mysql
 
 import (
     "database/sql"
     "{{ .Module }}/internal/domain/entities"
-    "{{ .Module }}/internal/domain/interfaces"
+    "{{ .Module }}/internal/repository"
 )
 
 type {{ .Entity }}MySQLRepo struct {
     DB *sql.DB
 }
 
-func New{{ .Entity }}MySQLRepo(db *sql.DB) interfaces.{{ .Entity }}Repository {
+func New{{ .Entity }}MySQLRepo(db *sql.DB) repository.{{ .Entity }}Repository {
     return &{{ .Entity }}MySQLRepo{DB: db}
 }
 

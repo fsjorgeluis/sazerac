@@ -1,4 +1,4 @@
-package interfaces
+package repository
 
 import "{{ .Module }}/internal/domain/entities"
 

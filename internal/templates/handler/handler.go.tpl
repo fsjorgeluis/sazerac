@@ -3,7 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"{{ .Module }}/internal/domain/usecases"
+	"{{ .Module }}/internal/usecases"
 )
 
 type {{ .Name }}Handler struct {

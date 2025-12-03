@@ -39,10 +39,12 @@ func NewInitCmd() *cobra.Command {
 			// create an empty structure
 			dirs := []string{
 				"internal/domain/entities",
-				"internal/domain/usecase",
-				"internal/domain/interfaces",
-				"internal/infrastructure/repositories",
-				"internal/infrastructure/http",
+				"internal/domain/mappers",
+				"internal/domain/validators",
+				"internal/usecases",
+				"internal/repository",
+				"internal/handlers",
+				"infrastructure/database/mysql",
 			}
 			for _, d := range dirs {
 				if err := os.MkdirAll(filepath.Join(name, d), 0755); err != nil {

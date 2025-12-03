@@ -33,7 +33,7 @@ sazerac init mi-proyecto
 Este comando creará:
 - La estructura de directorios básica
 - Archivos `main.go`, `go.mod` y `README.md`
-- Directorios para entidades, casos de uso, interfaces, repositorios e infraestructura HTTP
+- Directorios para entidades, mappers, validadores, casos de uso, repositorios, handlers e infraestructura MySQL
 
 **Nota:** Después de inicializar el proyecto, deberás editar el `go.mod` para actualizar el módulo con tu nombre de usuario de GitHub.
 

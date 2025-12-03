@@ -1,13 +1,15 @@
 package usecases
 
-import "{{ .Module }}/internal/domain/entities"
-import "{{ .Module }}/internal/domain/interfaces"
+import (
+    "{{ .Module }}/internal/domain/entities"
+    "{{ .Module }}/internal/repository"
+)
 
 type {{ .Name }}UseCase struct {
-    Repo interfaces.{{ .Entity }}Repository
+    Repo repository.{{ .Entity }}Repository
 }
 
-func New{{ .Name }}UseCase(repo interfaces.{{ .Entity }}Repository) *{{ .Name }}UseCase {
+func New{{ .Name }}UseCase(repo repository.{{ .Entity }}Repository) *{{ .Name }}UseCase {
     return &{{ .Name }}UseCase{Repo: repo}
 }
 
