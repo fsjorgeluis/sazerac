@@ -1,2 +1,3 @@
-# sazerac
-The framework for clean architecture enthusiasts
+# Sazerac
+
+The CLI for clean architecture enthusiasts
