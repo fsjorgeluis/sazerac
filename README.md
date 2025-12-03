@@ -35,7 +35,7 @@ Este comando creará:
 - Archivos `main.go`, `go.mod` y `README.md`
 - Directorios para entidades, mappers, validadores, casos de uso, repositorios, handlers e infraestructura MySQL
 
-**Nota:** Después de inicializar el proyecto, deberás editar el `go.mod` para actualizar el módulo con tu nombre de usuario de GitHub.
+**Nota:** El módulo en `go.mod` se generará como `example.com/<project-name>`. Deberás editarlo para usar tu propio módulo (por ejemplo, `github.com/tu-usuario/mi-proyecto`).
 
 ### Generar componentes individuales
 
@@ -106,7 +106,7 @@ Esto creará `internal/domain/validators/user_validator.go`.
 Para generar todos los componentes relacionados (entidad, repositorio, caso de uso y handler) en un solo comando:
 
 ```bash
-sazerac all User CreateUser
+sazerac make all User CreateUser
 ```
 
 El primer argumento es el nombre de la entidad y el segundo es el nombre del caso de uso. Este comando ejecutará automáticamente:
@@ -114,6 +114,8 @@ El primer argumento es el nombre de la entidad y el segundo es el nombre del cas
 2. `make repo` para el repositorio
 3. `make usecase` para el caso de uso
 4. `make handler` para el handler
+5. `make di` para el contenedor de dependency injection
+6. Actualización de `main.go` con la configuración del servidor HTTP
 
 ## Convenciones de nombres
 
@@ -136,7 +138,7 @@ sazerac init mi-api
 cd mi-api
 
 # 3. Generar todos los componentes para el módulo de usuarios
-sazerac all User CreateUser
+sazerac make all User CreateUser
 
 # 4. Generar componentes adicionales si es necesario
 sazerac make mapper User
@@ -154,7 +156,8 @@ sazerac make validator User
 | `make handler <Name> <UseCase>` | Genera un handler HTTP | Nombre del handler, Caso de uso |
 | `make mapper <Entity>` | Genera un mapper | Nombre de la entidad |
 | `make validator <Entity>` | Genera un validador | Nombre de la entidad |
-| `all <Entity> <UseCase>` | Genera todos los componentes básicos | Entidad, Caso de uso |
+| `make di <UseCase> <Entity>` | Genera el contenedor de dependency injection | Caso de uso, Entidad |
+| `make all <Entity> <UseCase>` | Genera todos los componentes básicos | Entidad, Caso de uso |
 
 ## Requisitos
 

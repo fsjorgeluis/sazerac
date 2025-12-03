@@ -11,12 +11,14 @@ import (
 
 func NewMakeUseCaseCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "make usecase <Name> <Entity>",
+		Use:   "usecase <Name> <Entity>",
 		Short: "Generate a usecase",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 			entity := args[1]
+			namePascal := internal.ToPascalCase(name)
+			entityPascal := internal.ToPascalCase(entity)
 
 			out := filepath.Join(
 				"internal/usecases",
@@ -24,8 +26,8 @@ func NewMakeUseCaseCmd() *cobra.Command {
 			)
 
 			data := map[string]any{
-				"Name":   name,
-				"Entity": entity,
+				"Name":   namePascal,
+				"Entity": entityPascal,
 				"Module": internal.GetModuleName(),
 			}
 

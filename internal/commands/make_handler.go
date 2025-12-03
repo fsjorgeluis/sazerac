@@ -11,12 +11,14 @@ import (
 
 func NewMakeHandlerCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "make handler <Name> <UseCase>",
+		Use:   "handler <Name> <UseCase>",
 		Short: "Generate the handler for a use case",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 			usecase := args[1]
+			namePascal := internal.ToPascalCase(name)
+			useCasePascal := internal.ToPascalCase(usecase)
 
 			out := filepath.Join(
 				"internal/handlers",
@@ -24,8 +26,8 @@ func NewMakeHandlerCmd() *cobra.Command {
 			)
 
 			data := map[string]any{
-				"Name":    name,
-				"UseCase": usecase,
+				"Name":    namePascal,
+				"UseCase": useCasePascal,
 				"Module":  internal.GetModuleName(),
 			}
 

@@ -11,11 +11,12 @@ import (
 
 func NewMakeRepoCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "make repo <Entity>",
+		Use:   "repo <Entity>",
 		Short: "Generate a dummy repository and its MySQL implementation",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			entity := args[0]
+			entityPascal := internal.ToPascalCase(entity)
 
 			// Repository interface
 			outInterface := filepath.Join(
@@ -30,7 +31,7 @@ func NewMakeRepoCmd() *cobra.Command {
 			)
 
 			data := map[string]any{
-				"Entity": entity,
+				"Entity": entityPascal,
 				"Module": internal.GetModuleName(),
 			}
 

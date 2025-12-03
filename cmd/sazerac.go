@@ -16,12 +16,23 @@ func Execute() {
 
 func init() {
 	rootCmd.AddCommand(commands.NewInitCmd())
-	rootCmd.AddCommand(commands.NewMakeEntityCmd())
-	rootCmd.AddCommand(commands.NewMakeUseCaseCmd())
-	rootCmd.AddCommand(commands.NewMakeRepoCmd())
-	rootCmd.AddCommand(commands.NewMakeHandlerCmd())
-	rootCmd.AddCommand(commands.NewMakeMapperCmd())
-	rootCmd.AddCommand(commands.NewMakeValidatorCmd())
-
-	rootCmd.AddCommand(commands.NewMakeAllCmd())
+	
+	// Create make command as parent
+	makeCmd := &cobra.Command{
+		Use:   "make",
+		Short: "Generate components for Clean Architecture",
+		Long:  "Generate entities, repositories, use cases, handlers, mappers, and validators",
+	}
+	
+	// Add all make subcommands
+	makeCmd.AddCommand(commands.NewMakeEntityCmd())
+	makeCmd.AddCommand(commands.NewMakeRepoCmd())
+	makeCmd.AddCommand(commands.NewMakeUseCaseCmd())
+	makeCmd.AddCommand(commands.NewMakeHandlerCmd())
+	makeCmd.AddCommand(commands.NewMakeMapperCmd())
+	makeCmd.AddCommand(commands.NewMakeValidatorCmd())
+	makeCmd.AddCommand(commands.NewMakeDiCmd())
+	makeCmd.AddCommand(commands.NewMakeAllCmd())
+	
+	rootCmd.AddCommand(makeCmd)
 }

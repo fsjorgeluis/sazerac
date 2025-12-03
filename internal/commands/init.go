@@ -17,12 +17,12 @@ func NewInitCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
-			module := fmt.Sprintf("github.com/<UserName>/%s", name)
+			module := fmt.Sprintf("github.com/user-name/%s", name)
 
 			paths := map[string]string{
-				"project/main.go.tpl":    filepath.Join(name, "cmd", name, "main.go"),
-				"project/go.mod.tpl":     filepath.Join(name, "go.mod"),
-				"project/readme.dm.tpl":  filepath.Join(name, "README.md"),
+				"project/main.go.tpl":   filepath.Join(name, "cmd", name, "main.go"),
+				"project/go.mod.tpl":    filepath.Join(name, "go.mod"),
+				"project/readme.dm.tpl": filepath.Join(name, "README.md"),
 			}
 
 			data := map[string]any{
@@ -45,6 +45,7 @@ func NewInitCmd() *cobra.Command {
 				"internal/repository",
 				"internal/handlers",
 				"infrastructure/database/mysql",
+				filepath.Join(name, "cmd", name, "di"),
 			}
 			for _, d := range dirs {
 				if err := os.MkdirAll(filepath.Join(name, d), 0755); err != nil {

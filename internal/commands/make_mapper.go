@@ -11,11 +11,12 @@ import (
 
 func NewMakeMapperCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "make mapper <Entity>",
+		Use:   "mapper <Entity>",
 		Short: "Generate a entity mapper <-> DTO",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			entity := args[0]
+			entityPascal := internal.ToPascalCase(entity)
 
 			out := filepath.Join(
 				"internal/domain/mappers",
@@ -23,7 +24,7 @@ func NewMakeMapperCmd() *cobra.Command {
 			)
 
 			data := map[string]any{
-				"Entity": entity,
+				"Entity": entityPascal,
 				"Module": internal.GetModuleName(),
 			}
 

@@ -7,7 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added dependency injection (DI) container generation with `make di` command
+- Added automatic DI generation in `make all` command
+- Added `main.go` template that initializes DI container and sets up HTTP server
+- Added `di.go` template that follows Clean Architecture pattern (DB -> Repository -> UseCase -> Handler)
+- Added `GetProjectName()` helper function to extract project name from module path
+
 ### Fixed
+- Fixed invalid module path in `init` command (changed from `github.com/<UserName>/...` to `example.com/...` to avoid syntax errors)
+- Fixed command structure: reorganized all `make` commands as subcommands under a parent `make` command
+- Fixed `make all` command to properly pass arguments to subcommands (usecase and handler now receive correct arguments)
+
+### Changed
+- Reorganized CLI structure: all generator commands are now under `sazerac make` (e.g., `sazerac make entity`, `sazerac make all`)
+- Improved command help output: commands now display correctly with proper descriptions
 - Fixed template path resolution in all command files to use centralized `templates.FS` instead of individual `embed.FS` instances
 - Fixed compilation error caused by incorrect `//go:embed` patterns that couldn't resolve template files
 - Fixed template filename reference in `init` command (`readme.md.tpl` → `readme.dm.tpl`)

@@ -11,11 +11,12 @@ import (
 
 func NewMakeValidatorCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "make validator <Entity>",
+		Use:   "validator <Entity>",
 		Short: "Generate a simple validator",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			entity := args[0]
+			entityPascal := internal.ToPascalCase(entity)
 
 			out := filepath.Join(
 				"internal/domain/validators",
@@ -23,7 +24,7 @@ func NewMakeValidatorCmd() *cobra.Command {
 			)
 
 			data := map[string]any{
-				"Entity": entity,
+				"Entity": entityPascal,
 			}
 
 			err := internal.WriteTemplate(

@@ -1,31 +1,29 @@
 package handlers
 
 import (
-	"encoding/json"
-	"net/http"
+	"fmt"
+
 	"{{ .Module }}/internal/usecases"
 )
 
 type {{ .Name }}Handler struct {
-UC *usecases.{{ .UseCase }}UseCase
+	UC *usecases.{{ .UseCase }}UseCase
 }
 
 func New{{ .Name }}Handler(uc *usecases.{{ .UseCase }}UseCase) *{{ .Name }}Handler {
-return &{{ .Name }}Handler{UC: uc}
+	return &{{ .Name }}Handler{UC: uc}
 }
 
-func (h *{{ .Name }}Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-var input usecases.{{ .UseCase }}Input
-if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-http.Error(w, err.Error(), http.StatusBadRequest)
-return
-}
-
-result, err := h.UC.Execute(input)
-if err != nil {
-http.Error(w, err.Error(), http.StatusInternalServerError)
-return
-}
-
-json.NewEncoder(w).Encode(result)
+// Run executes the use case and displays the result
+func (h *{{ .Name }}Handler) Run() error {
+	input := usecases.{{ .UseCase }}Input{}
+	
+	entity, err := h.UC.Execute(input)
+	if err != nil {
+		return fmt.Errorf("failed to execute use case: %w", err)
+	}
+	
+	fmt.Printf("Have a good drink! 🥃\n")
+	fmt.Printf("Entity created: ID=%s, Name=%s\n", entity.ID, entity.Name)
+	return nil
 }
