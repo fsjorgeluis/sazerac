@@ -10,31 +10,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added dependency injection (DI) container generation with `make di` command
 - Added automatic DI generation in `make all` command
-- Added `main.go` template that initializes DI container and sets up HTTP server
+- Added `main.go` template that initializes DI container and executes handler directly (no HTTP server)
 - Added `di.go` template that follows Clean Architecture pattern (DB -> Repository -> UseCase -> Handler)
 - Added `GetProjectName()` helper function to extract project name from module path
+- Added `ToPascalCase()` helper function to ensure exported types have correct capitalization
+- UseCase templates now generate entities with random names for demonstration
+- Handler templates now include `Run()` method that executes use case and displays results
 
 ### Fixed
 - Fixed invalid module path in `init` command (changed from `github.com/<UserName>/...` to `example.com/...` to avoid syntax errors)
 - Fixed command structure: reorganized all `make` commands as subcommands under a parent `make` command
 - Fixed `make all` command to properly pass arguments to subcommands (usecase and handler now receive correct arguments)
+- Fixed unused imports in templates (`entities` in usecase, `repository` in di, `fmt` in di)
+- Fixed template indentation issues in handler template
+- Fixed type export issues: all generated types now use PascalCase for proper export
 
 ### Changed
 - Reorganized CLI structure: all generator commands are now under `sazerac make` (e.g., `sazerac make entity`, `sazerac make all`)
 - Improved command help output: commands now display correctly with proper descriptions
-- Fixed template path resolution in all command files to use centralized `templates.FS` instead of individual `embed.FS` instances
-- Fixed compilation error caused by incorrect `//go:embed` patterns that couldn't resolve template files
-- Fixed template filename reference in `init` command (`readme.md.tpl` → `readme.dm.tpl`)
-- Fixed package names in repository templates (`interfaces` → `repository`, `repositories` → `mysql`)
-- Fixed incorrect import paths in usecase template (`internal/domain/interfaces` → `internal/repository`)
-- Fixed incorrect import paths in handler template (`internal/domain/usecases` → `internal/usecases`)
-- Fixed incorrect import paths in MySQL repository template (`internal/domain/interfaces` → `internal/repository`)
-- Fixed directory structure in `init` command to match actual generated paths (added mappers, validators, handlers, repository directories)
-
-### Changed
 - Refactored all command files to use centralized `templates.FS` from `internal/templates` package
 - Improved code organization by removing duplicate `embed.FS` declarations
 - Updated `init` command to create correct directory structure matching all generator commands
+- UseCase templates now return entities instead of strings, demonstrating full Clean Architecture flow
+- Handler templates changed from HTTP handlers to console handlers with `Run()` method
+- Main.go template changed from HTTP server to direct handler execution
+- Projects generated can now be executed directly without additional code
 
 ## [0.1.0] - 2025-12-03
 

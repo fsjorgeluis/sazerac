@@ -73,13 +73,13 @@ El primer argumento es el nombre del caso de uso y el segundo es la entidad rela
 
 #### Handler
 
-Genera un handler HTTP para un caso de uso:
+Genera un handler para ejecutar un caso de uso:
 
 ```bash
 sazerac make handler CreateUser CreateUser
 ```
 
-El primer argumento es el nombre del handler y el segundo es el nombre del caso de uso. Esto creará `internal/handlers/create_user_handler.go`.
+El primer argumento es el nombre del handler y el segundo es el nombre del caso de uso. Esto creará `internal/handlers/create_user_handler.go` con un método `Run()` que ejecuta el caso de uso y muestra el resultado.
 
 #### Mapper
 
@@ -112,10 +112,12 @@ sazerac make all User CreateUser
 El primer argumento es el nombre de la entidad y el segundo es el nombre del caso de uso. Este comando ejecutará automáticamente:
 1. `make entity` para la entidad
 2. `make repo` para el repositorio
-3. `make usecase` para el caso de uso
+3. `make usecase` para el caso de uso (genera entidades con nombres aleatorios)
 4. `make handler` para el handler
 5. `make di` para el contenedor de dependency injection
-6. Actualización de `main.go` con la configuración del servidor HTTP
+6. Actualización de `main.go` que ejecuta el handler directamente
+
+**Nota:** Después de generar los componentes, puedes ejecutar el proyecto con `go run cmd/<project-name>/main.go` y verás un mensaje con la entidad creada.
 
 ## Convenciones de nombres
 
@@ -140,7 +142,13 @@ cd mi-api
 # 3. Generar todos los componentes para el módulo de usuarios
 sazerac make all User CreateUser
 
-# 4. Generar componentes adicionales si es necesario
+# 4. Ejecutar el proyecto para verificar que funciona
+go run cmd/mi-api/main.go
+# Salida esperada:
+# Have a good drink! 🥃
+# Entity created: ID=1234567890, Name=Alice
+
+# 5. Generar componentes adicionales si es necesario
 sazerac make mapper User
 sazerac make validator User
 ```
@@ -153,7 +161,7 @@ sazerac make validator User
 | `make entity <Nombre>` | Genera una entidad | Nombre de la entidad |
 | `make repo <Entity>` | Genera repositorio e implementación MySQL | Nombre de la entidad |
 | `make usecase <Name> <Entity>` | Genera un caso de uso | Nombre del caso de uso, Entidad |
-| `make handler <Name> <UseCase>` | Genera un handler HTTP | Nombre del handler, Caso de uso |
+| `make handler <Name> <UseCase>` | Genera un handler con método Run() | Nombre del handler, Caso de uso |
 | `make mapper <Entity>` | Genera un mapper | Nombre de la entidad |
 | `make validator <Entity>` | Genera un validador | Nombre de la entidad |
 | `make di <UseCase> <Entity>` | Genera el contenedor de dependency injection | Caso de uso, Entidad |
