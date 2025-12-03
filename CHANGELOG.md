@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `ToPascalCase()` helper function to ensure exported types have correct capitalization
 - UseCase templates now generate entities with random names for demonstration
 - Handler templates now include `Run()` method that executes use case and displays results
+- Added comprehensive test suite for utility functions (`ToSnake`, `ToPascalCase`, `GetModuleName`, `GetProjectName`)
+- Added benchmark tests for performance-critical functions
+- Added comprehensive test suite for all commands (`init`, `make entity`, `make repo`, `make usecase`, `make handler`, `make mapper`, `make validator`, `make di`, `make all`)
+- Tests verify command creation, execution, file generation, and argument validation
+- Achieved 87.6% code coverage for commands package
 
 ### Fixed
 - Fixed invalid module path in `init` command (changed from `github.com/<UserName>/...` to `example.com/...` to avoid syntax errors)
