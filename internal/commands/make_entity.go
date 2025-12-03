@@ -1,16 +1,13 @@
 package commands
 
 import (
-	"embed"
 	"fmt"
 	"path/filepath"
 
 	"github.com/fsjorgeluis/sazerac/internal"
+	"github.com/fsjorgeluis/sazerac/internal/templates"
 	"github.com/spf13/cobra"
 )
-
-//go:embed ../templates/entity/*
-var entityFS embed.FS
 
 func NewMakeEntityCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -26,7 +23,7 @@ func NewMakeEntityCmd() *cobra.Command {
 				"Name": name,
 			}
 
-			if err := internal.WriteTemplate(entityFS, "../templates/entity/entity.go.tpl", out, data); err != nil {
+			if err := internal.WriteTemplate(templates.FS, "entity/entity.go.tpl", out, data); err != nil {
 				return err
 			}
 

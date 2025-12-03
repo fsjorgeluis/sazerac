@@ -1,16 +1,13 @@
 package commands
 
 import (
-	"embed"
 	"fmt"
 	"path/filepath"
 
 	"github.com/fsjorgeluis/sazerac/internal"
+	"github.com/fsjorgeluis/sazerac/internal/templates"
 	"github.com/spf13/cobra"
 )
-
-//go:embed ../templates/repository/*
-var repoFS embed.FS
 
 func NewMakeRepoCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -37,12 +34,12 @@ func NewMakeRepoCmd() *cobra.Command {
 				"Module": internal.GetModuleName(),
 			}
 
-			err := internal.WriteTemplate(repoFS, "../templates/repository/repo_interface.go.tpl", outInterface, data)
+			err := internal.WriteTemplate(templates.FS, "repository/repo_interface.go.tpl", outInterface, data)
 			if err != nil {
 				return err
 			}
 
-			err = internal.WriteTemplate(repoFS, "../templates/repository/repo_mysql.go.tpl", outInfra, data)
+			err = internal.WriteTemplate(templates.FS, "repository/repo_mysql.go.tpl", outInfra, data)
 			if err != nil {
 				return err
 			}

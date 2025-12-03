@@ -1,17 +1,14 @@
 package commands
 
 import (
-	"embed"
 	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/fsjorgeluis/sazerac/internal"
+	"github.com/fsjorgeluis/sazerac/internal/templates"
 	"github.com/spf13/cobra"
 )
-
-//go:embed ../templates/project/*
-var projectFS embed.FS
 
 func NewInitCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -23,9 +20,9 @@ func NewInitCmd() *cobra.Command {
 			module := fmt.Sprintf("github.com/<UserName>/%s", name)
 
 			paths := map[string]string{
-				"../templates/project/main.go.tpl":   filepath.Join(name, "cmd", name, "main.go"),
-				"../templates/project/go.mod.tpl":    filepath.Join(name, "go.mod"),
-				"../templates/project/readme.md.tpl": filepath.Join(name, "README.md"),
+				"project/main.go.tpl":    filepath.Join(name, "cmd", name, "main.go"),
+				"project/go.mod.tpl":     filepath.Join(name, "go.mod"),
+				"project/readme.dm.tpl":  filepath.Join(name, "README.md"),
 			}
 
 			data := map[string]any{
@@ -34,7 +31,7 @@ func NewInitCmd() *cobra.Command {
 			}
 
 			for tpl, out := range paths {
-				if err := internal.WriteTemplate(projectFS, tpl, out, data); err != nil {
+				if err := internal.WriteTemplate(templates.FS, tpl, out, data); err != nil {
 					return err
 				}
 			}

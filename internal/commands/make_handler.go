@@ -1,16 +1,13 @@
 package commands
 
 import (
-	"embed"
 	"fmt"
 	"path/filepath"
 
 	"github.com/fsjorgeluis/sazerac/internal"
+	"github.com/fsjorgeluis/sazerac/internal/templates"
 	"github.com/spf13/cobra"
 )
-
-//go:embed ../templates/handler/*
-var handlerFS embed.FS
 
 func NewMakeHandlerCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -32,7 +29,7 @@ func NewMakeHandlerCmd() *cobra.Command {
 				"Module":  internal.GetModuleName(),
 			}
 
-			err := internal.WriteTemplate(handlerFS, "../templates/handler/handler.go.tpl", out, data)
+			err := internal.WriteTemplate(templates.FS, "handler/handler.go.tpl", out, data)
 			if err != nil {
 				return err
 			}

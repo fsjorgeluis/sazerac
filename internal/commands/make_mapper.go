@@ -1,16 +1,13 @@
 package commands
 
 import (
-	"embed"
 	"fmt"
 	"path/filepath"
 
 	"github.com/fsjorgeluis/sazerac/internal"
+	"github.com/fsjorgeluis/sazerac/internal/templates"
 	"github.com/spf13/cobra"
 )
-
-//go:embed ../templates/mapper/*
-var mapperFS embed.FS
 
 func NewMakeMapperCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -30,7 +27,7 @@ func NewMakeMapperCmd() *cobra.Command {
 				"Module": internal.GetModuleName(),
 			}
 
-			err := internal.WriteTemplate(mapperFS, "../templates/mapper/mapper.go.tpl", out, data)
+			err := internal.WriteTemplate(templates.FS, "mapper/mapper.go.tpl", out, data)
 			if err != nil {
 				return err
 			}

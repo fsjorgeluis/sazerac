@@ -1,16 +1,13 @@
 package commands
 
 import (
-	"embed"
 	"fmt"
 	"path/filepath"
 
 	"github.com/fsjorgeluis/sazerac/internal"
+	"github.com/fsjorgeluis/sazerac/internal/templates"
 	"github.com/spf13/cobra"
 )
-
-//go:embed ../templates/usecase/*
-var useCaseFS embed.FS
 
 func NewMakeUseCaseCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -33,8 +30,8 @@ func NewMakeUseCaseCmd() *cobra.Command {
 			}
 
 			err := internal.WriteTemplate(
-				useCaseFS,
-				"../templates/usecase/usecase.go.tpl",
+				templates.FS,
+				"usecase/usecase.go.tpl",
 				out,
 				data,
 			)

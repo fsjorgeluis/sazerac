@@ -1,16 +1,13 @@
 package commands
 
 import (
-	"embed"
 	"fmt"
 	"path/filepath"
 
 	"github.com/fsjorgeluis/sazerac/internal"
+	"github.com/fsjorgeluis/sazerac/internal/templates"
 	"github.com/spf13/cobra"
 )
-
-//go:embed ../templates/validator/*
-var validatorFS embed.FS
 
 func NewMakeValidatorCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -30,8 +27,8 @@ func NewMakeValidatorCmd() *cobra.Command {
 			}
 
 			err := internal.WriteTemplate(
-				validatorFS,
-				"../templates/validator/validator.go.tpl",
+				templates.FS,
+				"validator/validator.go.tpl",
 				out,
 				data,
 			)
