@@ -4,6 +4,15 @@ The CLI for clean architecture enthusiasts
 
 Sazerac es una herramienta de línea de comandos que facilita la creación de proyectos Go siguiendo los principios de Clean Architecture. Genera automáticamente la estructura y los archivos necesarios para entidades, casos de uso, repositorios, handlers, mappers y validadores.
 
+## Características
+
+- ✅ Generación automática de estructura Clean Architecture
+- ✅ Dependency Injection integrado
+- ✅ Templates listos para usar
+- ✅ Proyectos ejecutables sin código adicional
+- ✅ Suite completa de tests (87.6% de cobertura en comandos)
+- ✅ Convenciones de nombres automáticas (snake_case para archivos, PascalCase para tipos)
+
 ## Instalación
 
 Para instalar Sazerac, ejecuta:
@@ -147,6 +156,7 @@ go run cmd/mi-api/main.go
 # Salida esperada:
 # Have a good drink! 🥃
 # Entity created: ID=1234567890, Name=Alice
+# (El nombre será aleatorio cada vez: Alice, Bob, Charlie, etc.)
 
 # 5. Generar componentes adicionales si es necesario
 sazerac make mapper User
@@ -167,6 +177,56 @@ sazerac make validator User
 | `make di <UseCase> <Entity>` | Genera el contenedor de dependency injection | Caso de uso, Entidad |
 | `make all <Entity> <UseCase>` | Genera todos los componentes básicos | Entidad, Caso de uso |
 
+## Desarrollo
+
+### Ejecutar tests
+
+Para ejecutar todos los tests del proyecto:
+
+```bash
+go test ./...
+```
+
+Para ejecutar tests con cobertura:
+
+```bash
+go test ./... -cover
+```
+
+Para ejecutar tests en modo verbose:
+
+```bash
+go test ./... -v
+```
+
+Para ejecutar benchmarks:
+
+```bash
+go test ./internal -bench=. -benchmem
+```
+
+### Cobertura de código
+
+El proyecto mantiene una buena cobertura de código:
+- **internal/commands**: 87.6% de cobertura
+- **internal**: 60.9% de cobertura
+
+### Estructura del proyecto
+
+```
+sazerac/
+├── cmd/                    # Punto de entrada de la aplicación
+├── internal/
+│   ├── commands/          # Comandos CLI (init, make, etc.)
+│   ├── templates/         # Templates embebidos para generación
+│   ├── generator.go       # Funciones utilitarias
+│   ├── generator_test.go  # Tests de funciones utilitarias
+│   └── commands_test.go   # Tests de comandos
+├── go.mod
+├── README.md
+└── CHANGELOG.md
+```
+
 ## Requisitos
 
 - Go 1.16 o superior (para soporte de `embed.FS`)
@@ -174,6 +234,12 @@ sazerac make validator User
 ## Contribuir
 
 Las contribuciones son bienvenidas. Por favor, abre un issue o envía un pull request.
+
+Antes de contribuir:
+1. Asegúrate de que todos los tests pasen: `go test ./...`
+2. Verifica que no haya errores de linting
+3. Actualiza el CHANGELOG.md con tus cambios
+4. Agrega tests para nuevas funcionalidades
 
 ## Licencia
 

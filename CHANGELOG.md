@@ -14,21 +14,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `di.go` template that follows Clean Architecture pattern (DB -> Repository -> UseCase -> Handler)
 - Added `GetProjectName()` helper function to extract project name from module path
 - Added `ToPascalCase()` helper function to ensure exported types have correct capitalization
-- UseCase templates now generate entities with random names for demonstration
+- UseCase templates now generate entities with random names for demonstration (Alice, Bob, Charlie, etc.)
 - Handler templates now include `Run()` method that executes use case and displays results
 - Added comprehensive test suite for utility functions (`ToSnake`, `ToPascalCase`, `GetModuleName`, `GetProjectName`)
-- Added benchmark tests for performance-critical functions
+- Added benchmark tests for performance-critical functions (`BenchmarkToSnake`, `BenchmarkToPascalCase`)
 - Added comprehensive test suite for all commands (`init`, `make entity`, `make repo`, `make usecase`, `make handler`, `make mapper`, `make validator`, `make di`, `make all`)
 - Tests verify command creation, execution, file generation, and argument validation
-- Achieved 87.6% code coverage for commands package
+- Tests use temporary directories to avoid affecting the project structure
+- Achieved 87.6% code coverage for commands package and 60.9% for internal package
+- Added "Development" section to README with testing instructions
+- Added "Características" (Features) section to README
+- Enhanced "Contribuir" (Contributing) section with guidelines
 
 ### Fixed
-- Fixed invalid module path in `init` command (changed from `github.com/<UserName>/...` to `example.com/...` to avoid syntax errors)
+- Fixed invalid module path in `init` command (changed from `github.com/<UserName>/...` to `github.com/user-name/...` to avoid syntax errors with invalid characters)
 - Fixed command structure: reorganized all `make` commands as subcommands under a parent `make` command
 - Fixed `make all` command to properly pass arguments to subcommands (usecase and handler now receive correct arguments)
 - Fixed unused imports in templates (`entities` in usecase, `repository` in di, `fmt` in di)
 - Fixed template indentation issues in handler template
 - Fixed type export issues: all generated types now use PascalCase for proper export
+- Fixed UseCase template to return entities instead of strings, properly using the repository
+- Fixed handler template to display entity information correctly
 
 ### Changed
 - Reorganized CLI structure: all generator commands are now under `sazerac make` (e.g., `sazerac make entity`, `sazerac make all`)
@@ -40,6 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Handler templates changed from HTTP handlers to console handlers with `Run()` method
 - Main.go template changed from HTTP server to direct handler execution
 - Projects generated can now be executed directly without additional code
+- Updated README.md with comprehensive documentation including features, development guide, and contributing guidelines
+- Enhanced CHANGELOG.md with detailed information about all changes and improvements
 
 ## [0.1.0] - 2025-12-03
 
