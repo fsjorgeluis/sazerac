@@ -128,6 +128,68 @@ El primer argumento es el nombre de la entidad y el segundo es el nombre del cas
 
 **Nota:** Después de generar los componentes, puedes ejecutar el proyecto con `go run cmd/<project-name>/main.go` y verás un mensaje con la entidad creada.
 
+## Arquitectura Clean Architecture
+
+Sazerac genera proyectos siguiendo los principios de Clean Architecture. Aquí está el diagrama del flujo de dependencias:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        main.go                              │
+│  (Punto de entrada de la aplicación)                        │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    di/di.go                                 │
+│  (Dependency Injection Container)                            │
+│  - Inicializa todas las dependencias                        │
+│  - Conecta las capas de la arquitectura                     │
+└───────┬─────────────────────────────────────────────────────┘
+        │
+        ├─────────────────┬──────────────────┬──────────────┐
+        ▼                 ▼                  ▼              ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│  Handlers   │  │  UseCases    │  │ Repository   │  │  Entities    │
+│  (Capa de   │  │  (Lógica de │  │  (Interfaz)  │  │  (Dominio)  │
+│  aplicación)│  │  negocio)   │  │              │  │              │
+└──────┬──────┘  └──────┬───────┘  └──────┬───────┘  └──────────────┘
+       │                │                  │
+       │                │                  │
+       │                ▼                  │
+       │         ┌──────────────┐          │
+       │         │  Repository   │          │
+       │         │  Implementation          │
+       │         │  (MySQL)      │          │
+       │         └───────────────┘          │
+       │                                    │
+       └────────────────────────────────────┘
+
+Flujo de ejecución:
+main.go → di.NewContainer()
+  ├── mysql.NewUserMySQLRepo(db)
+  ├── usecases.NewCreateUserUseCase(repo)
+  └── handlers.NewCreateUserHandler(uc)
+  
+handler.Run() → usecase.Execute() → repository.Save()
+```
+
+### Capas de la Arquitectura
+
+1. **Entities (Dominio)**: Objetos de negocio puros, sin dependencias externas
+2. **Repository (Interfaz)**: Define contratos para acceso a datos
+3. **UseCases (Lógica de negocio)**: Contiene la lógica de aplicación
+4. **Handlers (Capa de aplicación)**: Orquesta la ejecución de casos de uso
+5. **Infrastructure (Implementación)**: Implementaciones concretas (MySQL, HTTP, etc.)
+6. **DI Container**: Gestiona la inyección de dependencias
+
+### Principios aplicados
+
+- **Dependency Rule**: Las dependencias apuntan hacia adentro (hacia el dominio)
+- **Independencia de frameworks**: El dominio no depende de librerías externas
+- **Testabilidad**: Cada capa puede ser testeada independientemente
+- **Independencia de UI**: La lógica de negocio no depende de la interfaz
+- **Independencia de base de datos**: El dominio no conoce detalles de persistencia
+
 ## Convenciones de nombres
 
 Sazerac convierte automáticamente los nombres a formato snake_case para los archivos:
