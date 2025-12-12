@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	"gopkg.in/yaml.v3"
 )
 
 func WriteTemplate(baseFS embed.FS, tplPath, outPath string, data any) error {
@@ -88,17 +90,35 @@ func GetModuleName() string {
 	return ""
 }
 
-// GetProjectName extracts project name from go.mod module path
+// GetProjectName extracts the project name from .sazerac.yaml or go.mod
 func GetProjectName() string {
-	module := GetModuleName()
-	if module == "" {
+	// First try to read from .sazerac.yaml
+	if data, err := os.ReadFile(".sazerac.yaml"); err == nil {
+		var config struct {
+			Project struct {
+				Name string `yaml:"name"`
+			} `yaml:"project"`
+		}
+		if err := yaml.Unmarshal(data, &config); err == nil && config.Project.Name != "" {
+			return config.Project.Name
+		}
+	}
+
+	// Fallback to extracting from go.mod
+	data, err := os.ReadFile("go.mod")
+	if err != nil {
 		return ""
 	}
 
-	// Extract project name from module path (e.g., github.com/user/project-name -> project-name)
-	parts := strings.Split(module, "/")
-	if len(parts) > 0 {
-		return parts[len(parts)-1]
+	lines := strings.Split(string(data), "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "module ") {
+			modulePath := strings.TrimPrefix(line, "module ")
+			modulePath = strings.TrimSpace(modulePath)
+			parts := strings.Split(modulePath, "/")
+			return parts[len(parts)-1]
+		}
 	}
 
 	return ""

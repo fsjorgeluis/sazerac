@@ -51,4 +51,3 @@ structure:
     - "internal/usecases"
     - "internal/repository"
     - "internal/handlers"
-    - "cmd/lambda"

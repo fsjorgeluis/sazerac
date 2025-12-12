@@ -59,27 +59,27 @@ func NewMakeAllCmd() *cobra.Command {
 				useCasePascal := internal.ToPascalCase(usecase)
 				entityPascal := internal.ToPascalCase(entity)
 
-				var mainPath string
-				if projectType == "lambda" {
-					mainPath = filepath.Join("cmd", "lambda", "main.go")
-				} else {
-					mainPath = filepath.Join("cmd", projectName, "main.go")
-				}
+				// Only update main.go for CLI projects
+				// Lambda projects already have the correct main.go from init
+				if projectType == "cli" {
+					mainPath := filepath.Join("cmd", projectName, "main.go")
 
-				data := map[string]any{
-					"UseCase":     useCasePascal,
-					"Entity":      entityPascal,
-					"Module":      internal.GetModuleName(),
-					"ProjectName": projectName,
-					"Features":    features,
-				}
+					data := map[string]any{
+						"UseCase":     useCasePascal,
+						"Entity":      entityPascal,
+						"Module":      internal.GetModuleName(),
+						"ProjectName": projectName,
+						"Features":    features,
+					}
 
-				templatePath := fmt.Sprintf("project_types/%s/project/main.go.tpl", projectType)
-				if err := internal.WriteTemplate(templates.FS, templatePath, mainPath, data); err != nil {
-					fmt.Printf("⚠️  Warning: Failed to update main.go: %v\n", err)
-				} else {
-					fmt.Println("Main.go updated 🥃:", mainPath)
+					templatePath := fmt.Sprintf("project_types/%s/project/main.go.tpl", projectType)
+					if err := internal.WriteTemplate(templates.FS, templatePath, mainPath, data); err != nil {
+						fmt.Printf("⚠️  Warning: Failed to update main.go: %v\n", err)
+					} else {
+						fmt.Printf("Main.go updated 🥃: %s\n", mainPath)
+					}
 				}
+				// For Lambda projects, main.go is already correct from init
 			}
 
 			fmt.Println("✔️  Everything served successfully 🥃")

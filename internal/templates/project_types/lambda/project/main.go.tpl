@@ -6,10 +6,6 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	{{- if eq .Features.Database "dynamodb" }}
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	{{- end }}
 
 	"{{ .Module }}/cmd/lambda/di"
 )
@@ -25,7 +21,15 @@ func init() {
 }
 
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	{{- if .UseCase }}
 	return container.{{ .UseCase }}Handler.Handle(ctx, request)
+	{{- else }}
+	// TODO: Update this handler after running 'sazerac make all <Entity> <UseCase>'
+	return events.APIGatewayProxyResponse{
+		StatusCode: 200,
+		Body:       `{"message": "Lambda function initialized. Run 'sazerac make all <Entity> <UseCase>' to generate handlers."}`,
+	}, nil
+	{{- end }}
 }
 
 func main() {

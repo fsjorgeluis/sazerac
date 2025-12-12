@@ -166,6 +166,9 @@ Examples:
 			fmt.Printf("\n✅ Project '%s' created successfully!\n", projectName)
 			fmt.Println("\nNext steps:")
 			fmt.Printf("  cd %s\n", projectName)
+			fmt.Println("  # Generate components (entity, repo, usecase, handler, DI):")
+			fmt.Println("  sazerac make all <Entity> <UseCase>")
+			fmt.Println("  # Then build and run:")
 			fmt.Println("  go mod tidy")
 			if projectType == "lambda" {
 				fmt.Println("  # Build for Lambda:")
@@ -212,6 +215,25 @@ func createProject(name, projectType, module string, manifest *config.Manifest, 
 		}
 	}
 
+	// Generate main.go
+	var mainPath string
+	if projectType == "lambda" {
+		mainPath = filepath.Join(name, "cmd", "lambda", "main.go")
+	} else {
+		mainPath = filepath.Join(name, "cmd", name, "main.go")
+	}
+
+	mainData := map[string]any{
+		"Module":      module,
+		"ProjectName": name,
+		"Features":    features,
+	}
+
+	mainTemplate := fmt.Sprintf("project_types/%s/project/main.go.tpl", projectType)
+	if err := internal.WriteTemplate(templates.FS, mainTemplate, mainPath, mainData); err != nil {
+		return err
+	}
+
 	// Template data
 	data := map[string]any{
 		"ProjectName": name,
@@ -222,8 +244,7 @@ func createProject(name, projectType, module string, manifest *config.Manifest, 
 	// Generate basic project files
 	projectTemplatesPath := fmt.Sprintf("project_types/%s/project", projectType)
 	projectTemplates := map[string]string{
-		fmt.Sprintf("%s/main.go.tpl", projectTemplatesPath): filepath.Join(name, "cmd", name, "main.go"),
-		fmt.Sprintf("%s/go.mod.tpl", projectTemplatesPath):  filepath.Join(name, "go.mod"),
+		fmt.Sprintf("%s/go.mod.tpl", projectTemplatesPath): filepath.Join(name, "go.mod"),
 	}
 
 	// Add optional templates
