@@ -2,16 +2,20 @@
 
 The CLI for clean architecture enthusiasts
 
-Sazerac es una herramienta de línea de comandos que facilita la creación de proyectos Go siguiendo los principios de Clean Architecture. Genera automáticamente la estructura y los archivos necesarios para entidades, casos de uso, repositorios, handlers, mappers y validadores.
+Sazerac es una herramienta de línea de comandos que facilita la creación de proyectos Go siguiendo los principios de Clean Architecture. Genera automáticamente la estructura y los archivos necesarios para proyectos CLI y AWS Lambda con soporte para múltiples bases de datos.
 
 ## Características
 
-- ✅ Generación automática de estructura Clean Architecture
-- ✅ Dependency Injection integrado
-- ✅ Templates listos para usar
-- ✅ Proyectos ejecutables sin código adicional
-- ✅ Suite completa de tests (87.6% de cobertura en comandos)
-- ✅ Convenciones de nombres automáticas (snake_case para archivos, PascalCase para tipos)
+- ✅ **Multi-Project Support**: CLI y AWS Lambda
+- ✅ **Interactive CLI**: Modo interactivo con prompts inteligentes
+- ✅ **Database Options**: None (in-memory), MySQL, DynamoDB
+- ✅ **Feature Toggles**: Control granular de características (tests, error handling, SAM, etc.)
+- ✅ **Clean Architecture**: Estructura automática siguiendo principios SOLID
+- ✅ **Dependency Injection**: Contenedor DI generado automáticamente
+- ✅ **Context Support**: Todos los repositorios usan `context.Context`
+- ✅ **Error Management**: Sistema de errores de dominio con códigos HTTP
+- ✅ **Ready-to-Run**: Proyectos ejecutables sin código adicional
+- ✅ **High Test Coverage**: 60.7% coverage con tests automatizados
 
 ## Instalación
 
@@ -29,108 +33,173 @@ go install .
 
 Asegúrate de que `$GOPATH/bin` o `$HOME/go/bin` esté en tu `PATH` para poder ejecutar `sazerac` desde cualquier directorio.
 
-## Uso
+## Inicio Rápido
 
-### Inicializar un nuevo proyecto
-
-Crea un nuevo proyecto con la estructura de Clean Architecture:
+### Modo Interactivo (Recomendado)
 
 ```bash
-sazerac init mi-proyecto
+sazerac init
 ```
 
-Este comando creará:
-- La estructura de directorios básica
-- Archivos `main.go`, `go.mod` y `README.md`
-- Directorios para entidades, mappers, validadores, casos de uso, repositorios, handlers e infraestructura MySQL
+El CLI te guiará interactivamente para configurar tu proyecto:
+- Tipo de proyecto (CLI o Lambda)
+- Nombre del módulo
+- Base de datos (none, MySQL, DynamoDB)
+- Características opcionales (tests, error handling, Docker, SAM template)
 
-**Nota:** El módulo en `go.mod` se generará como `example.com/<project-name>`. Deberás editarlo para usar tu propio módulo (por ejemplo, `github.com/tu-usuario/mi-proyecto`).
-
-### Generar componentes individuales
-
-#### Entidad (Entity)
-
-Genera una entidad de dominio:
+### Modo No Interactivo
 
 ```bash
-sazerac make entity User
+# Proyecto CLI con MySQL
+sazerac init my-api --type cli --module github.com/user/my-api --db mysql
+
+# Proyecto Lambda con DynamoDB y SAM
+sazerac init my-lambda --type lambda --module github.com/user/my-lambda --db dynamodb --sam --api-gateway
+
+# Proyecto CLI sin base de datos
+sazerac init my-cli --type cli --module github.com/user/my-cli --db none
 ```
 
-Esto creará `internal/domain/entities/user.go` con una estructura básica.
-
-#### Repositorio (Repository)
-
-Genera la interfaz del repositorio y su implementación MySQL:
+### Generar Componentes
 
 ```bash
-sazerac make repo User
-```
+cd my-project
 
-Esto generará:
-- `internal/repository/user_repository.go` (interfaz)
-- `infrastructure/database/mysql/user_mysql.go` (implementación MySQL)
-
-#### Caso de Uso (UseCase)
-
-Genera un caso de uso:
-
-```bash
-sazerac make usecase CreateUser User
-```
-
-El primer argumento es el nombre del caso de uso y el segundo es la entidad relacionada. Esto creará `internal/usecases/create_user_usecase.go`.
-
-#### Handler
-
-Genera un handler para ejecutar un caso de uso:
-
-```bash
-sazerac make handler CreateUser CreateUser
-```
-
-El primer argumento es el nombre del handler y el segundo es el nombre del caso de uso. Esto creará `internal/handlers/create_user_handler.go` con un método `Run()` que ejecuta el caso de uso y muestra el resultado.
-
-#### Mapper
-
-Genera un mapper para convertir entre entidades y DTOs:
-
-```bash
-sazerac make mapper User
-```
-
-Esto creará `internal/domain/mappers/user_mapper.go`.
-
-#### Validator
-
-Genera un validador para una entidad:
-
-```bash
-sazerac make validator User
-```
-
-Esto creará `internal/domain/validators/user_validator.go`.
-
-### Generar todo de una vez
-
-Para generar todos los componentes relacionados (entidad, repositorio, caso de uso y handler) en un solo comando:
-
-```bash
+# Generar todos los componentes de una vez
 sazerac make all User CreateUser
+
+# O generarlos individualmente
+sazerac make entity User
+sazerac make repo User
+sazerac make usecase CreateUser User
+sazerac make handler CreateUser CreateUser
+sazerac make di CreateUser User
 ```
 
-El primer argumento es el nombre de la entidad y el segundo es el nombre del caso de uso. Este comando ejecutará automáticamente:
-1. `make entity` para la entidad
-2. `make repo` para el repositorio
-3. `make usecase` para el caso de uso (genera entidades con nombres aleatorios)
-4. `make handler` para el handler
-5. `make di` para el contenedor de dependency injection
-6. Actualización de `main.go` que ejecuta el handler directamente
+### Ejecutar el Proyecto
 
-**Nota:** Después de generar los componentes, puedes ejecutar el proyecto con `go run cmd/<project-name>/main.go` y verás un mensaje con la entidad creada.
+**CLI Project:**
+```bash
+go mod tidy
+go run cmd/my-cli/main.go
+```
+
+**Lambda Project:**
+```bash
+go mod tidy
+
+# Build for Lambda
+GOOS=linux GOARCH=amd64 go build -o bootstrap cmd/lambda/main.go
+
+# O deploy con SAM (si se generó template.yaml)
+sam build && sam deploy --guided
+```
+
+## Tipos de Proyecto
+
+### CLI Projects
+
+Proyectos de línea de comandos con:
+- Handler con método `Run()`
+- Ejecución directa sin servidor HTTP
+- Soporte para MySQL o in-memory storage
+
+**Ejemplo de uso:**
+```go
+// El main.go generado ejecuta directamente el handler
+container, _ := di.NewContainer()
+container.CreateUserHandler.Run()
+```
+
+### Lambda Projects
+
+Proyectos AWS Lambda con:
+- Handler compatible con API Gateway
+- Integración con DynamoDB o MySQL-RDS
+- Templates SAM opcionales
+- Dockerfile opcional para despliegue
+
+**Ejemplo de uso:**
+```go
+// El main.go generado usa Lambda runtime
+func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+    return container.ProcessOrderHandler.Handle(ctx, request)
+}
+```
+
+## Opciones de Base de Datos
+
+### None (In-Memory)
+- Perfecto para prototipos y demos
+- Repositorio in-memory con thread-safety
+- Sin dependencias externas
+
+### MySQL
+- Para proyectos CLI con MySQL
+- Incluye implementación completa
+- Requiere `database/sql` y driver MySQL
+
+### MySQL-RDS
+- Para proyectos Lambda con Amazon RDS
+- Configuración via variables de entorno
+- Driver incluido en los templates
+
+### DynamoDB
+- Para proyectos Lambda serverless
+- AWS SDK v2 integrado
+- Table name configurable via env vars
+
+## Comandos
+
+### Init
+
+Inicializa un nuevo proyecto:
+
+```bash
+# Modo interactivo
+sazerac init
+
+# Con flags
+sazerac init <nombre> --type <cli|lambda> --module <module-path> --db <none|mysql|dynamodb> [--sam] [--api-gateway] [--skip-tests]
+```
+
+**Flags disponibles:**
+- `--type`: Tipo de proyecto (cli, lambda)
+- `--module`: Ruta del módulo Go
+- `--db`: Base de datos (none, mysql, mysql-rds, dynamodb)
+- `--sam`: Incluir SAM template (solo Lambda)
+- `--api-gateway`: Incluir API Gateway (solo Lambda)
+- `--docker`: Incluir Dockerfile (solo Lambda)
+- `--skip-tests`: No generar archivos de test
+
+### Config
+
+Muestra la configuración actual del proyecto:
+
+```bash
+sazerac config show
+```
+
+Esto lee `.sazerac.yaml` o infiere la configuración desde `go.mod`.
+
+### Make Commands
+
+| Comando | Descripción | Argumentos |
+|---------|-------------|------------|
+| `make entity <Name>` | Genera una entidad de dominio | Nombre de la entidad |
+| `make repo <Entity>` | Genera repositorio e implementación | Nombre de la entidad |
+| `make usecase <Name> <Entity>` | Genera un caso de uso | Nombre del caso de uso, Entidad |
+| `make handler <Name> <UseCase>` | Genera un handler | Nombre del handler, Caso de uso |
+| `make mapper <Entity>` | Genera un mapper DTO | Nombre de la entidad |
+| `make validator <Entity>` | Genera un validador | Nombre de la entidad |
+| `make di <UseCase> <Entity>` | Genera contenedor DI | Caso de uso, Entidad |
+| `make all <Entity> <UseCase>` | Genera todo (entity, repo, usecase, handler, DI) | Entidad, Caso de uso |
+
+**Detección automática**: Los comandos `make` detectan automáticamente el tipo de proyecto desde `.sazerac.yaml` y usan los templates apropiados.
 
 ## Arquitectura Clean Architecture
 
-Sazerac genera proyectos siguiendo los principios de Clean Architecture. Aquí está el diagrama del flujo de dependencias:
+Sazerac genera proyectos siguiendo los principios de Clean Architecture:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -141,149 +210,241 @@ Sazerac genera proyectos siguiendo los principios de Clean Architecture. Aquí e
                         ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                    di/di.go                                 │
-│  (Dependency Injection Container)                            │
-│  - Inicializa todas las dependencias                        │
+│  (Dependency Injection Container)                           │
+│  - Inicializa database (MySQL/DynamoDB/InMemory)            │
+│  - Crea repositories, use cases, handlers                   │
 │  - Conecta las capas de la arquitectura                     │
 └───────┬─────────────────────────────────────────────────────┘
         │
         ├─────────────────┬──────────────────┬──────────────┐
         ▼                 ▼                  ▼              ▼
 ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
-│  Handlers   │  │  UseCases    │  │ Repository   │  │  Entities    │
-│  (Capa de   │  │  (Lógica de │  │  (Interfaz)  │  │  (Dominio)  │
-│  aplicación)│  │  negocio)   │  │              │  │              │
-└──────┬──────┘  └──────┬───────┘  └──────┬───────┘  └──────────────┘
+│  Handlers    │  │  UseCases    │  │ Repository   │  │  Entities    │
+│  (Capa de    │  │  (Lógica de  │  │  (Interfaz)  │  │  (Dominio)   │
+│  aplicación) │  │  negocio)    │  │              │  │              │
+└──────┬───────┘  └──────┬───────┘  └──────┬───────┘  └──────────────┘
        │                │                  │
        │                │                  │
        │                ▼                  │
-       │         ┌──────────────┐          │
-       │         │  Repository   │          │
-       │         │  Implementation          │
-       │         │  (MySQL)      │          │
-       │         └───────────────┘          │
-       │                                    │
-       └────────────────────────────────────┘
+       │         ┌──────────────────────┐  │
+       │         │  Infrastructure      │  │
+       │         │  (MySQL/DynamoDB/    │  │
+       │         │   InMemory)          │  │
+       │         └──────────────────────┘  │
+       │                                   │
+       └───────────────────────────────────┘
 
 Flujo de ejecución:
 main.go → di.NewContainer()
-  ├── mysql.NewUserMySQLRepo(db)
-  ├── usecases.NewCreateUserUseCase(repo)
-  └── handlers.NewCreateUserHandler(uc)
+  ├── database.NewRepo(connection) // MySQL, DynamoDB, o InMemory
+  ├── usecases.NewUseCase(repo)
+  └── handlers.NewHandler(usecase)
   
-handler.Run() → usecase.Execute() → repository.Save()
+handler.Run() → usecase.Execute(ctx) → repository.Save(ctx, entity)
 ```
 
 ### Capas de la Arquitectura
 
-1. **Entities (Dominio)**: Objetos de negocio puros, sin dependencias externas
-2. **Repository (Interfaz)**: Define contratos para acceso a datos
-3. **UseCases (Lógica de negocio)**: Contiene la lógica de aplicación
-4. **Handlers (Capa de aplicación)**: Orquesta la ejecución de casos de uso
-5. **Infrastructure (Implementación)**: Implementaciones concretas (MySQL, HTTP, etc.)
-6. **DI Container**: Gestiona la inyección de dependencias
+1. **Entities (Dominio)**: Objetos de negocio puros
+   - Sin dependencias externas
+   - Generados desde `common/entity/entity.go.tpl`
 
-### Principios aplicados
+2. **Repository (Interfaz)**: Contratos para acceso a datos
+   - Define `Save(ctx, entity)` y `FindByID(ctx, id)`
+   - CLI: `project_types/cli/repository/repository.go.tpl`
+   - Lambda: `project_types/lambda/repository/repository.go.tpl`
 
-- **Dependency Rule**: Las dependencias apuntan hacia adentro (hacia el dominio)
-- **Independencia de frameworks**: El dominio no depende de librerías externas
-- **Testabilidad**: Cada capa puede ser testeada independientemente
-- **Independencia de UI**: La lógica de negocio no depende de la interfaz
-- **Independencia de base de datos**: El dominio no conoce detalles de persistencia
+3. **Repository (Implementación)**: Acceso a datos real
+   - MySQL: `infrastructure/mysql/repo_mysql.go.tpl`
+   - DynamoDB: `infrastructure/dynamodb/repo_dynamodb.go.tpl`
+   - InMemory: `infrastructure/inmemory/repo_inmemory.go.tpl`
 
-## Convenciones de nombres
+4. **UseCases (Lógica de negocio)**: Casos de uso
+   - CLI: `project_types/cli/usecase/usecase.go.tpl`
+   - Lambda: `project_types/lambda/usecase/usecase.go.tpl`
 
-Sazerac convierte automáticamente los nombres a formato snake_case para los archivos:
-- `CreateUser` → `create_user`
-- `UserProfile` → `user_profile`
-- `OrderItem` → `order_item`
+5. **Handlers (Capa de aplicación)**: Orquestación
+   - CLI: Handler con método `Run()`
+   - Lambda: Handler compatible con API Gateway
 
-Los nombres de las estructuras y tipos se mantienen en PascalCase como los proporcionaste.
+6. **DI Container**: Inyección de dependencias
+   - Gestiona todas las dependencias
+   - Adapta según tipo de proyecto y DB
 
-## Ejemplo completo
+7. **Error Management** (Opcional): Errores de dominio
+   - Códigos HTTP estandarizados
+   - Generado desde `common/errors/`
 
-Aquí tienes un ejemplo de cómo crear un módulo completo para gestionar usuarios:
+### Principios Aplicados
 
-```bash
-# 1. Inicializar el proyecto
-sazerac init mi-api
+- **Dependency Rule**: Las dependencias apuntan hacia el dominio
+- **Independencia de frameworks**: No acoplamiento a librerías externas
+- **Testabilidad**: Cada capa testeada independientemente
+- **Independencia de UI**: Lógica de negocio desacoplada
+- **Independencia de DB**: El dominio no conoce detalles de persistencia
 
-# 2. Navegar al proyecto
-cd mi-api
+## Estructura del Proyecto Generado
 
-# 3. Generar todos los componentes para el módulo de usuarios
-sazerac make all User CreateUser
-
-# 4. Ejecutar el proyecto para verificar que funciona
-go run cmd/mi-api/main.go
-# Salida esperada:
-# Have a good drink! 🥃
-# Entity created: ID=1234567890, Name=Alice
-# (El nombre será aleatorio cada vez: Alice, Bob, Charlie, etc.)
-
-# 5. Generar componentes adicionales si es necesario
-sazerac make mapper User
-sazerac make validator User
+### CLI Project
+```
+my-cli/
+├── .sazerac.yaml           # Configuración del proyecto
+├── go.mod
+├── README.md
+├── cmd/
+│   └── my-cli/
+│       ├── main.go         # Punto de entrada
+│       └── di/
+│           └── di.go       # Dependency injection
+├── internal/
+│   ├── domain/
+│   │   ├── entities/       # Entidades de dominio
+│   │   ├── errors/         # Errores personalizados (opcional)
+│   │   ├── mappers/        # Mappers DTO (opcional)
+│   │   └── validators/     # Validadores (opcional)
+│   ├── repository/         # Interfaces de repositorio
+│   ├── usecases/           # Casos de uso
+│   └── handlers/           # Handlers CLI
+└── infrastructure/
+    └── database/
+        ├── mysql/          # Implementaciones MySQL
+        └── inmemory/       # Implementaciones in-memory
 ```
 
-## Comandos disponibles
+### Lambda Project
+```
+my-lambda/
+├── .sazerac.yaml
+├── go.mod
+├── template.yaml           # SAM template (opcional)
+├── Dockerfile              # Para despliegue (opcional)
+├── cmd/
+│   └── lambda/
+│       ├── main.go         # Lambda handler
+│       └── di/
+│           └── di.go
+├── internal/
+│   ├── domain/
+│   │   ├── entities/
+│   │   └── errors/
+│   ├── repository/
+│   ├── usecases/
+│   └── handlers/           # Lambda handlers
+└── infrastructure/
+    └── database/
+        ├── dynamodb/       # Implementaciones DynamoDB
+        └── inmemory/       # Implementaciones in-memory
+```
 
-| Comando | Descripción | Argumentos |
-|---------|-------------|-------------|
-| `init <nombre>` | Inicializa un nuevo proyecto | Nombre del proyecto |
-| `make entity <Nombre>` | Genera una entidad | Nombre de la entidad |
-| `make repo <Entity>` | Genera repositorio e implementación MySQL | Nombre de la entidad |
-| `make usecase <Name> <Entity>` | Genera un caso de uso | Nombre del caso de uso, Entidad |
-| `make handler <Name> <UseCase>` | Genera un handler con método Run() | Nombre del handler, Caso de uso |
-| `make mapper <Entity>` | Genera un mapper | Nombre de la entidad |
-| `make validator <Entity>` | Genera un validador | Nombre de la entidad |
-| `make di <UseCase> <Entity>` | Genera el contenedor de dependency injection | Caso de uso, Entidad |
-| `make all <Entity> <UseCase>` | Genera todos los componentes básicos | Entidad, Caso de uso |
+## Archivo .sazerac.yaml
+
+El archivo `.sazerac.yaml` contiene la metadata del proyecto:
+
+```yaml
+project:
+  name: "my-project"
+  type: "cli"              # o "lambda"
+  module: "github.com/user/my-project"
+  version: "1.0.0"
+
+features:
+  database: "mysql"        # none, mysql, mysql-rds, dynamodb
+  tests: true
+  error_handling: true
+  docker: false            # solo Lambda
+  sam_template: false      # solo Lambda
+  api_gateway: false       # solo Lambda
+```
+
+Este archivo permite a los comandos `make` detectar automáticamente el tipo de proyecto y generar los templates correctos.
+
+## Ejemplo Completo
+
+### Proyecto CLI con MySQL
+
+```bash
+# 1. Crear proyecto
+sazerac init my-api --type cli --module github.com/user/my-api --db mysql
+
+# 2. Navegar al proyecto
+cd my-api
+
+# 3. Generar componentes
+sazerac make all User CreateUser
+
+# 4. Instalar dependencias
+go mod tidy
+
+# 5. Ejecutar
+go run cmd/my-api/main.go
+
+# Salida esperada:
+# Have a good drink! 🥃
+# Entity created: ID=1670123456, Name=Alice
+```
+
+### Proyecto Lambda con DynamoDB
+
+```bash
+# 1. Crear proyecto
+sazerac init order-service --type lambda --module github.com/user/order-service --db dynamodb --sam --api-gateway
+
+# 2. Navegar al proyecto
+cd order-service
+
+# 3. Generar componentes
+sazerac make all Order ProcessOrder
+
+# 4. Instalar dependencias
+go mod tidy
+
+# 5. Build para Lambda
+GOOS=linux GOARCH=amd64 go build -o bootstrap cmd/lambda/main.go
+
+# 6. Deploy con SAM
+sam build
+sam deploy --guided
+```
 
 ## Desarrollo
 
-### Ejecutar tests
-
-Para ejecutar todos los tests del proyecto:
+### Ejecutar Tests
 
 ```bash
+# Todos los tests
 go test ./...
-```
 
-Para ejecutar tests con cobertura:
-
-```bash
+# Con cobertura
 go test ./... -cover
-```
 
-Para ejecutar tests en modo verbose:
-
-```bash
+# Modo verbose
 go test ./... -v
-```
 
-Para ejecutar benchmarks:
-
-```bash
+# Benchmarks
 go test ./internal -bench=. -benchmem
 ```
 
-### Cobertura de código
+### Cobertura de Código
 
-El proyecto mantiene una buena cobertura de código:
-- **internal/commands**: 87.6% de cobertura
-- **internal**: 60.9% de cobertura
+- **internal/commands**: 60.7%
+- **internal**: 60.9%
 
-### Estructura del proyecto
+### Estructura del Proyecto Sazerac
 
 ```
 sazerac/
-├── cmd/                    # Punto de entrada de la aplicación
+├── cmd/
+│   └── sazerac.go
 ├── internal/
-│   ├── commands/          # Comandos CLI (init, make, etc.)
-│   ├── templates/         # Templates embebidos para generación
-│   ├── generator.go       # Funciones utilitarias
-│   ├── generator_test.go  # Tests de funciones utilitarias
-│   └── commands_test.go   # Tests de comandos
+│   ├── commands/          # Comandos CLI
+│   ├── config/            # Config management
+│   ├── prompts/           # Interactive prompts
+│   ├── templates/         # Templates embebidos
+│   │   ├── common/        # Shared templates
+│   │   ├── project_types/ # CLI y Lambda
+│   │   └── infrastructure/# DB implementations
+│   ├── generator.go       # Utilidades
+│   └── *_test.go          # Tests
 ├── go.mod
 ├── README.md
 └── CHANGELOG.md
@@ -291,18 +452,45 @@ sazerac/
 
 ## Requisitos
 
-- Go 1.16 o superior (para soporte de `embed.FS`)
+- Go 1.21 o superior
+- Para proyectos Lambda:
+  - AWS CLI configurado (para deployment)
+  - SAM CLI (opcional, para SAM templates)
+  - Docker (opcional, para local testing)
 
 ## Contribuir
 
-Las contribuciones son bienvenidas. Por favor, abre un issue o envía un pull request.
+Las contribuciones son bienvenidas. Por favor:
 
-Antes de contribuir:
-1. Asegúrate de que todos los tests pasen: `go test ./...`
-2. Verifica que no haya errores de linting
-3. Actualiza el CHANGELOG.md con tus cambios
-4. Agrega tests para nuevas funcionalidades
+1. Fork el repositorio
+2. Crea una rama feature (`git checkout -b feature/amazing-feature`)
+3. Asegúrate de que los tests pasen: `go test ./...`
+4. Commit tus cambios (`git commit -m 'Add amazing feature'`)
+5. Push a la rama (`git push origin feature/amazing-feature`)
+6. Abre un Pull Request
+
+### Guidelines
+
+- Mantén la cobertura de tests arriba del 60%
+- Actualiza CHANGELOG.md con tus cambios
+- Sigue las convenciones de código existentes
+- Agrega tests para nuevas funcionalidades
+
+## Roadmap
+
+- [ ] Gin HTTP project support
+- [ ] PostgreSQL repository templates
+- [ ] Middleware generation
+- [ ] Custom user-defined templates
+- [ ] CI/CD pipeline templates
+- [ ] OpenAPI/Swagger generation
+- [ ] Observability/monitoring templates
+- [ ] GraphQL handler templates
 
 ## Licencia
 
 Ver el archivo LICENSE para más detalles.
+
+---
+
+**Have a good drink! 🥃**

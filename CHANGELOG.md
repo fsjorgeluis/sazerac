@@ -7,9 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Major MVP Release 🥃
+- **Multi-Project Template System**: Support for CLI and AWS Lambda project types
+- **Interactive CLI Experience**: Interactive prompts using survey/v2 library with automatic flag fallback
+- **Project Configuration System**: `.sazerac.yaml` manifest for project metadata and feature configuration
+- **Feature Toggles**: Granular control over database, tests, error handling, Docker, SAM template, and API Gateway
+- **Database Support**:
+  - None (in-memory repository)
+  - MySQL/MySQL-RDS
+  - DynamoDB
+- **Lambda Support**:
+  - AWS Lambda handler templates
+  - DynamoDB repository implementation
+  - SAM template generation (optional)
+  - API Gateway integration (optional)
+  - Dockerfile for Lambda (optional)
+- **In-Memory Repository**: Automatic in-memory repository generation for projects without database
+- **Error Management System**: Standardized domain error types with HTTP status codes
+- **Modular Template Structure**:
+  - `common/`: Shared templates (entity, mapper, validator, errors)
+  - `project_types/`: Project-specific templates (cli, lambda)
+  - `infrastructure/`: Database implementations (mysql, dynamodb, inmemory)
+- **Config Command**: `sazerac config show` to display current project configuration
+- **Context Support**: All repository methods now use `context.Context` for better cancellation and timeout control
+- **Auto Replace Directive**: `go.mod` templates include `replace` directive for local development
+
 ### Changed
-- Updated .gitignore to exclude test projects and temporary files
-- Improved CHANGELOG organization to match actual git tags (v0.0.1-beta, v0.0.2-beta)
+- **Template Organization**: Complete restructure from flat to hierarchical template directory
+- **Init Command**: Now supports interactive mode with flags for non-interactive use
+- **Make Repo Command**: Intelligently selects database implementation based on project configuration
+- **Make Commands**: All commands now detect project type and use appropriate templates
+- **DI Generation**: Conditional dependency injection based on project type and features
+- **Project Initialization**: Generates `.sazerac.yaml` with project metadata
+
+### Fixed
+- Import path issues in generated code (now uses `{{ .Module }}` consistently)
+- Template function availability (added `ToLower` to template func map)
+- Repository interface signatures now consistent across CLI and Lambda
+- Nil pointer dereferences when using in-memory repository
+- Context parameter usage in repository implementations
+
+### Testing
+- All 10/10 command tests passing
+- Coverage: 60.9% (internal), 60.7% (commands)
+- Validated CLI projects (with and without DB)
+- Validated Lambda projects (with and without DB)
 
 ## [0.0.2-beta] - 2025-12-04
 
@@ -47,7 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Module name detection from `go.mod` file
 - Dependency injection (DI) container generation
 - `main.go` template that initializes DI container and executes handler directly (no HTTP server)
-- `di.go` template that follows Clean Architecture pattern (DB -> Repository -> UseCase -> Handler)
+- `di.go` template that follows Clean Architecture pattern (DB → Repository → UseCase → Handler)
 - `GetProjectName()` helper function to extract project name from module path
 - `ToPascalCase()` helper function to ensure exported types have correct capitalization
 - UseCase templates now generate entities with random names for demonstration (Alice, Bob, Charlie, etc.)
@@ -86,4 +128,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.0.2-beta]: https://github.com/fsjorgeluis/sazerac/compare/v0.0.1-beta...v0.0.2-beta
 [0.0.1-beta]: https://github.com/fsjorgeluis/sazerac/compare/v0.0.1...v0.0.1-beta
 [0.0.1]: https://github.com/fsjorgeluis/sazerac/releases/tag/v0.0.1
-
