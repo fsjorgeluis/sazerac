@@ -19,6 +19,8 @@ func NewMakeHandlerCmd() *cobra.Command {
 			usecase := args[1]
 			namePascal := internal.ToPascalCase(name)
 			useCasePascal := internal.ToPascalCase(usecase)
+			projectType := detectProjectType()
+			features := getFeatureConfig()
 
 			out := filepath.Join(
 				"internal/handlers",
@@ -26,12 +28,21 @@ func NewMakeHandlerCmd() *cobra.Command {
 			)
 
 			data := map[string]any{
-				"Name":    namePascal,
-				"UseCase": useCasePascal,
-				"Module":  internal.GetModuleName(),
+				"Name":     namePascal,
+				"UseCase":  useCasePascal,
+				"Module":   internal.GetModuleName(),
+				"Features": features,
 			}
 
-			err := internal.WriteTemplate(templates.FS, "handler/handler.go.tpl", out, data)
+			// Use project-type specific template
+			var templatePath string
+			if projectType == "lambda" {
+				templatePath = "project_types/lambda/handler/lambda_handler.go.tpl"
+			} else {
+				templatePath = "project_types/cli/handler/handler.go.tpl"
+			}
+
+			err := internal.WriteTemplate(templates.FS, templatePath, out, data)
 			if err != nil {
 				return err
 			}

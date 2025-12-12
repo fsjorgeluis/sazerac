@@ -47,37 +47,35 @@ func NewMakeAllCmd() *cobra.Command {
 			if projectName == "" {
 				fmt.Println("⚠️  Warning: Could not determine project name. Skipping DI generation.")
 			} else {
+				// Generate DI using the dedicated command
+				diCmd := NewMakeDiCmd()
+				if err := diCmd.RunE(cmd, []string{usecase, entity}); err != nil {
+					fmt.Printf("⚠️  Warning: Failed to generate DI: %v\n", err)
+				}
+
+				// Generate main.go
+				projectType := detectProjectType()
+				features := getFeatureConfig()
 				useCasePascal := internal.ToPascalCase(usecase)
 				entityPascal := internal.ToPascalCase(entity)
-				useCaseRoute := internal.ToSnake(useCasePascal)
 
-				out := filepath.Join("cmd", projectName, "di", "di.go")
-				module := internal.GetModuleName()
+				var mainPath string
+				if projectType == "lambda" {
+					mainPath = filepath.Join("cmd", "lambda", "main.go")
+				} else {
+					mainPath = filepath.Join("cmd", projectName, "main.go")
+				}
 
 				data := map[string]any{
-					"UseCase":      useCasePascal,
-					"Entity":       entityPascal,
-					"Module":       module,
-					"ProjectName":  projectName,
-					"UseCaseRoute": useCaseRoute,
+					"UseCase":     useCasePascal,
+					"Entity":      entityPascal,
+					"Module":      internal.GetModuleName(),
+					"ProjectName": projectName,
+					"Features":    features,
 				}
 
-				if err := internal.WriteTemplate(templates.FS, "project/di.go.tpl", out, data); err != nil {
-					fmt.Printf("⚠️  Warning: Failed to generate DI: %v\n", err)
-				} else {
-					fmt.Println("Dependency injection container served 🥃:", out)
-				}
-
-				// Update main.go
-				mainPath := filepath.Join("cmd", projectName, "main.go")
-				mainData := map[string]any{
-					"Module":       module,
-					"ProjectName":  projectName,
-					"UseCase":      useCasePascal,
-					"UseCaseRoute": useCaseRoute,
-				}
-
-				if err := internal.WriteTemplate(templates.FS, "project/main.go.tpl", mainPath, mainData); err != nil {
+				templatePath := fmt.Sprintf("project_types/%s/project/main.go.tpl", projectType)
+				if err := internal.WriteTemplate(templates.FS, templatePath, mainPath, data); err != nil {
 					fmt.Printf("⚠️  Warning: Failed to update main.go: %v\n", err)
 				} else {
 					fmt.Println("Main.go updated 🥃:", mainPath)

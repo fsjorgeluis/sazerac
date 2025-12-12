@@ -30,8 +30,8 @@ func (uc *{{ .Name }}UseCase) Execute(input {{ .Name }}Input) (*entities.{{ .Ent
         Name: randomName,
     }
     
-    // Save entity using repository
-    if err := uc.Repo.Save(entity); err != nil {
+    // Save entity using repository (no context for CLI)
+    if err := uc.Repo.Save(nil, entity); err != nil { // Changed to pass nil context
         return nil, fmt.Errorf("failed to save entity: %w", err)
     }
     

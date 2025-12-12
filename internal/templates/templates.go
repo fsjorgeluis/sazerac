@@ -2,5 +2,5 @@ package templates
 
 import "embed"
 
-//go:embed project/* entity/* usecase/* repository/* handler/* validator/* mapper/*
+//go:embed common/* project_types/*/* infrastructure/mysql/* infrastructure/dynamodb/* infrastructure/inmemory/*
 var FS embed.FS

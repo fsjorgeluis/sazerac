@@ -1,0 +1,35 @@
+name: "CLI Application"
+description: "Command-line application with Clean Architecture"
+version: "1.0.0"
+
+features:
+  database:
+    optional: true
+    options: ["mysql", "none"]
+    default: "none"
+    prompt: "Select database (none, mysql)"
+  
+  tests:
+    optional: true
+    default: false
+    prompt: "Generate unit tests?"
+  
+  error_handling:
+    optional: true
+    default: true
+    prompt: "Include error management?"
+
+dependencies:
+  required: []
+  optional:
+    mysql:
+      - "github.com/go-sql-driver/mysql"
+
+structure:
+  directories:
+    - "internal/domain/entities"
+    - "internal/domain/errors"
+    - "internal/usecases"
+    - "internal/repository"
+    - "internal/handlers"
+    - "cmd/{project_name}"

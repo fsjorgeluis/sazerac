@@ -62,6 +62,20 @@ func TestNewMakeRepoCmd(t *testing.T) {
 	// Create a minimal go.mod for GetModuleName
 	os.WriteFile("go.mod", []byte("module test\n\ngo 1.21\n"), 0644)
 
+	// Create .sazerac.yaml for project type detection
+	sazeracConfig := `project:
+  name: "test"
+  type: "cli"
+  module: "test"
+  version: "1.0.0"
+
+features:
+  database: "mysql"
+  tests: false
+  error_handling: true
+`
+	os.WriteFile(".sazerac.yaml", []byte(sazeracConfig), 0644)
+
 	err := cmd.RunE(cmd, []string{"User"})
 	if err != nil {
 		t.Fatalf("Command execution failed: %v", err)
@@ -207,41 +221,42 @@ func TestNewInitCmd(t *testing.T) {
 		t.Fatal("NewInitCmd() returned nil")
 	}
 
-	if cmd.Use != "init <project-name>" {
-		t.Errorf("Expected Use to be 'init <project-name>', got %q", cmd.Use)
+	if cmd.Use != "init [project-name]" {
+		t.Errorf("Expected Use to be 'init [project-name]', got %q", cmd.Use)
 	}
 
-	// Test command execution in temp directory
+	// Test command execution in temp directory with project type flag
 	tmpDir := t.TempDir()
 	originalDir, _ := os.Getwd()
 	os.Chdir(tmpDir)
 	defer os.Chdir(originalDir)
 
 	projectName := "test-project"
+	// Use flags to avoid interactive mode in tests
+	cmd.Flags().Set("type", "cli")
+	cmd.Flags().Set("db", "none")
+	cmd.Flags().Set("skip-tests", "true")
+
 	err := cmd.RunE(cmd, []string{projectName})
 	if err != nil {
 		t.Fatalf("Command execution failed: %v", err)
 	}
 
-	// Verify files and directories were created
+	// Verify files and directories were created (based on manifest)
 	expectedFiles := []string{
 		filepath.Join(projectName, "cmd", projectName, "main.go"),
 		filepath.Join(projectName, "go.mod"),
 		filepath.Join(projectName, "README.md"),
 	}
 
+	// With db=none, infrastructure directory is not created
 	expectedDirs := []string{
 		filepath.Join(projectName, "internal", "domain", "entities"),
-		filepath.Join(projectName, "internal", "domain", "mappers"),
-		filepath.Join(projectName, "internal", "domain", "validators"),
+		filepath.Join(projectName, "internal", "domain", "errors"), // error management is enabled by default
 		filepath.Join(projectName, "internal", "usecases"),
 		filepath.Join(projectName, "internal", "repository"),
 		filepath.Join(projectName, "internal", "handlers"),
-		filepath.Join(projectName, "infrastructure", "database", "mysql"),
 	}
-
-	// Note: The di directory is created inside the project structure
-	// The path in init.go uses filepath.Join(name, "cmd", name, "di")
 
 	for _, file := range expectedFiles {
 		if _, err := os.Stat(file); os.IsNotExist(err) {
@@ -256,16 +271,6 @@ func TestNewInitCmd(t *testing.T) {
 		} else if !info.IsDir() {
 			t.Errorf("Expected directory %s exists but is not a directory", dir)
 		}
-	}
-	
-	// The di directory is created with a different path structure due to how init.go constructs it
-	// init.go does: filepath.Join(name, filepath.Join(name, "cmd", name, "di"))
-	// which results in: name/name/cmd/name/di
-	diPath := filepath.Join(projectName, projectName, "cmd", projectName, "di")
-	if info, err := os.Stat(diPath); os.IsNotExist(err) {
-		t.Errorf("Expected directory %s was not created", diPath)
-	} else if !info.IsDir() {
-		t.Errorf("Expected directory %s exists but is not a directory", diPath)
 	}
 }
 
@@ -318,6 +323,20 @@ func TestNewMakeAllCmd(t *testing.T) {
 
 	// Create a minimal go.mod for GetModuleName and GetProjectName
 	os.WriteFile("go.mod", []byte("module github.com/user/test-project\n\ngo 1.21\n"), 0644)
+
+	// Create .sazerac.yaml for project type detection
+	sazeracConfig := `project:
+  name: "test-project"
+  type: "cli"
+  module: "github.com/user/test-project"
+  version: "1.0.0"
+
+features:
+  database: "mysql"
+  tests: false
+  error_handling: true
+`
+	os.WriteFile(".sazerac.yaml", []byte(sazeracConfig), 0644)
 
 	err := cmd.RunE(cmd, []string{"User", "CreateUser"})
 	if err != nil {
@@ -400,7 +419,7 @@ func TestCommandArgsValidation(t *testing.T) {
 				t.Skip("Command has no Args validator")
 				return
 			}
-			
+
 			err := tt.cmd.Args(tt.cmd, tt.args)
 			if tt.shouldErr && err == nil {
 				t.Errorf("Expected error but got none")
@@ -411,4 +430,3 @@ func TestCommandArgsValidation(t *testing.T) {
 		})
 	}
 }
-

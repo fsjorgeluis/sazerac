@@ -29,7 +29,7 @@ func NewMakeValidatorCmd() *cobra.Command {
 
 			err := internal.WriteTemplate(
 				templates.FS,
-				"validator/validator.go.tpl",
+				"common/validator/validator.go.tpl",
 				out,
 				data,
 			)

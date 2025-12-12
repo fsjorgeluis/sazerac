@@ -19,6 +19,8 @@ func NewMakeUseCaseCmd() *cobra.Command {
 			entity := args[1]
 			namePascal := internal.ToPascalCase(name)
 			entityPascal := internal.ToPascalCase(entity)
+			projectType := detectProjectType()
+			features := getFeatureConfig()
 
 			out := filepath.Join(
 				"internal/usecases",
@@ -26,14 +28,17 @@ func NewMakeUseCaseCmd() *cobra.Command {
 			)
 
 			data := map[string]any{
-				"Name":   namePascal,
-				"Entity": entityPascal,
-				"Module": internal.GetModuleName(),
+				"Name":     namePascal,
+				"Entity":   entityPascal,
+				"Module":   internal.GetModuleName(),
+				"Features": features,
 			}
 
+			// Use project-type specific template
+			templatePath := fmt.Sprintf("project_types/%s/usecase/usecase.go.tpl", projectType)
 			err := internal.WriteTemplate(
 				templates.FS,
-				"usecase/usecase.go.tpl",
+				templatePath,
 				out,
 				data,
 			)

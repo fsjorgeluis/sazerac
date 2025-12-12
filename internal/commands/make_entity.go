@@ -24,7 +24,7 @@ func NewMakeEntityCmd() *cobra.Command {
 				"Name": namePascal,
 			}
 
-			if err := internal.WriteTemplate(templates.FS, "entity/entity.go.tpl", out, data); err != nil {
+			if err := internal.WriteTemplate(templates.FS, "common/entity/entity.go.tpl", out, data); err != nil {
 				return err
 			}
 

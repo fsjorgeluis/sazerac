@@ -14,7 +14,12 @@ func WriteTemplate(baseFS embed.FS, tplPath, outPath string, data any) error {
 		return err
 	}
 
-	tpl, err := template.New(filepath.Base(tplPath)).Parse(string(content))
+	// Create template with custom functions
+	tpl, err := template.New(filepath.Base(tplPath)).Funcs(template.FuncMap{
+		"ToSnake":      ToSnake,
+		"ToPascalCase": ToPascalCase,
+		"ToLower":      strings.ToLower,
+	}).Parse(string(content))
 	if err != nil {
 		return err
 	}
@@ -89,12 +94,12 @@ func GetProjectName() string {
 	if module == "" {
 		return ""
 	}
-	
+
 	// Extract project name from module path (e.g., github.com/user/project-name -> project-name)
 	parts := strings.Split(module, "/")
 	if len(parts) > 0 {
 		return parts[len(parts)-1]
 	}
-	
+
 	return ""
 }

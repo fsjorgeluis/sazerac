@@ -28,7 +28,7 @@ func NewMakeMapperCmd() *cobra.Command {
 				"Module": internal.GetModuleName(),
 			}
 
-			err := internal.WriteTemplate(templates.FS, "mapper/mapper.go.tpl", out, data)
+			err := internal.WriteTemplate(templates.FS, "common/mapper/mapper.go.tpl", out, data)
 			if err != nil {
 				return err
 			}

@@ -1,0 +1,54 @@
+name: "AWS Lambda"
+description: "Serverless AWS Lambda with Clean Architecture"
+version: "1.0.0"
+
+features:
+  database:
+    optional: true
+    options: ["dynamodb", "mysql-rds", "none"]
+    default: "dynamodb"
+    prompt: "Select database (none, dynamodb, mysql-rds)"
+  
+  tests:
+    optional: true
+    default: false
+    prompt: "Generate unit tests?"
+  
+  error_handling:
+    optional: true
+    default: true
+    prompt: "Include error management?"
+  
+  docker:
+    optional: true
+    default: false
+    prompt: "Generate Dockerfile?"
+  
+  sam_template:
+    optional: true
+    default: true
+    prompt: "Generate AWS SAM template?"
+  
+  api_gateway:
+    optional: true
+    default: false
+    prompt: "Configure API Gateway?"
+
+dependencies:
+  required:
+    - "github.com/aws/aws-lambda-go/lambda"
+  optional:
+    dynamodb:
+      - "github.com/aws/aws-sdk-go-v2/config"
+      - "github.com/aws/aws-sdk-go-v2/service/dynamodb"
+    mysql-rds:
+      - "github.com/go-sql-driver/mysql"
+
+structure:
+  directories:
+    - "internal/domain/entities"
+    - "internal/domain/errors"
+    - "internal/usecases"
+    - "internal/repository"
+    - "internal/handlers"
+    - "cmd/lambda"
