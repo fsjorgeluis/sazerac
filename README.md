@@ -134,14 +134,15 @@ Sazerac genera proyectos siguiendo los principios de Clean Architecture. Aquí e
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        main.go                              │
-│  (Punto de entrada de la aplicación)                        │
+│                           main.go                           │
+│             (Punto de entrada de la aplicación)             │
 └───────────────────────┬─────────────────────────────────────┘
                         │
                         ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    di/di.go                                 │
-│  (Dependency Injection Container)                            │
+│                           di/di.go                          │
+│               (Dependency Injection Container)              |
+│                                                             |
 │  - Inicializa todas las dependencias                        │
 │  - Conecta las capas de la arquitectura                     │
 └───────┬─────────────────────────────────────────────────────┘
@@ -149,20 +150,20 @@ Sazerac genera proyectos siguiendo los principios de Clean Architecture. Aquí e
         ├─────────────────┬──────────────────┬──────────────┐
         ▼                 ▼                  ▼              ▼
 ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
-│  Handlers   │  │  UseCases    │  │ Repository   │  │  Entities    │
-│  (Capa de   │  │  (Lógica de │  │  (Interfaz)  │  │  (Dominio)  │
-│  aplicación)│  │  negocio)   │  │              │  │              │
-└──────┬──────┘  └──────┬───────┘  └──────┬───────┘  └──────────────┘
-       │                │                  │
-       │                │                  │
-       │                ▼                  │
+│  Handlers    │  │  UseCases    │  │ Repository   │  │  Entities    │
+│  (Capa de    │  │  (Lógica de  │  │  (Interfaz)  │  │  (Dominio)   │
+│  aplicación) │  │  negocio)    │  │              │  │              │
+└──────┬───────┘  └──────┬───────┘  └──────┬───────┘  └──────────────┘
+       │                 │                 │
+       │                 │                 │
+       │                 ▼                 │
        │         ┌──────────────┐          │
-       │         │  Repository   │          │
-       │         │  Implementation          │
-       │         │  (MySQL)      │          │
-       │         └───────────────┘          │
-       │                                    │
-       └────────────────────────────────────┘
+       │         │  Repository  │          │
+       │         │Implementation|          │
+       │         │    (MySQL)   │          │
+       │         └──────────────┘          │
+       │                                   │
+       └───────────────────────────────────┘
 
 Flujo de ejecución:
 main.go → di.NewContainer()
